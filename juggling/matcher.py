@@ -11,7 +11,7 @@ class Matcher:
 
     def match(self, features):
         if len(features) == 1:
-            return features[0]
+            return self.__similarity(features[0]), features[0]
 
         index, distance = 0, self.__similarity(features[0])
         for i in range(1, len(features)):
@@ -20,4 +20,4 @@ class Matcher:
                 index = i
                 distance = candidate_distance
 
-        return features[index]
+        return distance, features[index]
