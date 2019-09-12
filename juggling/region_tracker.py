@@ -1,5 +1,4 @@
 import collections
-import numpy
 
 
 class RegionTracker:
@@ -35,7 +34,8 @@ class RegionTracker:
 
         print(list(self.__visited_regions))
         if list(self.__visited_regions) == [0, 1, 2, 3]:
-            print(self.__visited_regions)
+            self.__laps += 1
+        elif list(self.__visited_regions) == [3, 2, 1, 0]:
             self.__laps += 1
 
 

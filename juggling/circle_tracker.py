@@ -43,11 +43,11 @@ class CircleTracker:
 
             predict_next_change = self.__circles[i].predict_distance()
             if predict_next_change is not None:
-                predict_next_change *= 2
+                predict_next_change *= 1.5
                 if predict_next_change < 200:
                     predict_next_change = 200
 
-            if (self.__ignore_change[i] > 2) or (predict_next_change is None) or (distance < predict_next_change):
+            if (self.__ignore_change[i] > 5) or (predict_next_change is None) or (distance < predict_next_change):
                 self.__circles[i].update(next_position, distance)
                 self.__region[i].track(next_position)
                 self.__ignore_change[i] = 0

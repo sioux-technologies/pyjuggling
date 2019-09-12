@@ -3,11 +3,13 @@ import logging
 
 from juggling.circle_tracker import CircleTracker
 from juggling.circle_detector import CircleDetector
+from juggling.simulator import Simulator
 
 
 class Application(object):
     def __init__(self):
         self.__tracker = None
+        self.__simulator = Simulator([[100, 100, 40], [100, 100, 50]], [[250, 250, 120], [250, 250, 120]], [0.0, 3.14])
 
     def __display_circle(self, frame, circle, name):
         cv2.circle(frame, (circle.x(), circle.y()), circle.radius(), (0, 255, 0), 2)
@@ -37,6 +39,7 @@ class Application(object):
 
         while True:
             ret, frame = camera.read()
+            self.__simulator.step(frame)
             circle_positions = CircleDetector(frame).get(amount_circles)
 
             if circle_positions is not None:
@@ -61,4 +64,4 @@ class Application(object):
 
 
 test = Application()
-test.run(1)
+test.run(2)

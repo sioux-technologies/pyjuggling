@@ -27,3 +27,6 @@ example("../tests/samples/circles_simple_colored_amount_5.png", 5)
 example("../tests/samples/circles_photo_amount_3_white_background_1.jpg", 3)
 example("../tests/samples/circles_photo_amount_3_white_background_2.jpg", 3)
 example("../tests/samples/circles_photo_colored_amount_6.png", 6)
+
+example("../tests/samples/circles_photo_juggling_amount_3_1.jpg", 3)  # wrong detection (1 ball is allocated wrongly)
+example("../tests/samples/circles_photo_juggling_amount_3_2.jpg", 3)  # all balls are allocated wrongly

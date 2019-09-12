@@ -1,6 +1,4 @@
 import cv2
-import itertools
-import numpy
 
 
 class CircleDetector:
