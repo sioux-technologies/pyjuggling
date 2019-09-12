@@ -32,7 +32,6 @@ class RegionTracker:
         if len(self.__visited_regions) != 4:
             return
 
-        print(list(self.__visited_regions))
         if list(self.__visited_regions) == [0, 1, 2, 3]:
             self.__laps += 1
         elif list(self.__visited_regions) == [3, 2, 1, 0]:

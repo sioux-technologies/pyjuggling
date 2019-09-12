@@ -38,18 +38,33 @@ class CircleTracker:
 
     def __match_circles(self, next_positions):
         for i in range(len(self.__circles)):
-            distance, next_position = Matcher(self.__circles[i].position()).match(next_positions)
+            distance, next_position = Matcher(self.__circles[i].position()).match(next_positions, [1, 1, 0])
             next_positions.remove(next_position)
 
+            # position is predictable
             predict_next_change = self.__circles[i].predict_distance()
             if predict_next_change is not None:
-                predict_next_change *= 1.5
-                if predict_next_change < 200:
-                    predict_next_change = 200
+                predict_next_change = predict_next_change * 0.3 + predict_next_change
+                if predict_next_change < 100:
+                    predict_next_change = 100
 
-            if (self.__ignore_change[i] > 5) or (predict_next_change is None) or (distance < predict_next_change):
+            position_verdict = (predict_next_change is None) or (distance < predict_next_change)
+
+            # TODO: color change?
+
+            # radius is the same with tolerance
+            radius = self.__circles[i].position()[2]
+            radius_verdict = (radius * 0.2 + radius) > next_position[2]
+            print(radius, next_position[2])
+
+            # general verdict
+            general_verdict = position_verdict or radius_verdict
+
+            if (self.__ignore_change[i] > 6) or general_verdict:
+                # print("Recognized (position: %s, radius: %s)" % (position_verdict, radius_verdict))
                 self.__circles[i].update(next_position, distance)
                 self.__region[i].track(next_position)
                 self.__ignore_change[i] = 0
             else:
+                # print("Ignore (position: %s, radius: %s)" % (position_verdict, radius_verdict))
                 self.__ignore_change[i] += 1

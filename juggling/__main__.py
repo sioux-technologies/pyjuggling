@@ -69,4 +69,4 @@ class Application(object):
 
 
 test = Application()
-test.run(2)
+test.run(1)
