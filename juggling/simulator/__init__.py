@@ -12,7 +12,7 @@ class Simulator:
 
     def step(self, frame):
         for i in range(len(self.__circles)):
-            x = int(self.__trajectory[i][2] * math.sin(self.__radians[i])) + self.__trajectory[i][0]
+            x = int(self.__trajectory[i][2] * math.sin(self.__radians[i]) * 1.5) + self.__trajectory[i][0]
             y = int(self.__trajectory[i][2] * math.cos(self.__radians[i])) + self.__trajectory[i][1]
 
             cv2.circle(frame, (x, y), self.__circles[i][2], (255, 255, 255), -1)

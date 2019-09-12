@@ -1,5 +1,6 @@
 import cv2
 import logging
+import time
 
 from juggling.circle_tracker import CircleTracker
 from juggling.circle_detector import CircleDetector
@@ -9,7 +10,9 @@ from juggling.simulator import Simulator
 class Application(object):
     def __init__(self):
         self.__tracker = None
-        self.__simulator = Simulator([[100, 100, 40], [100, 100, 50]], [[250, 250, 120], [250, 250, 120]], [0.0, 3.14])
+        #self.__simulator = Simulator([[100, 100, 40], [100, 100, 50]], [[250, 300, 120], [250, 250, 120]], [0.0, 3.14])  # for 2 balls
+        self.__simulator = Simulator([[100, 100, 30], [100, 100, 30], [100, 100, 30]], [[250, 300, 120], [250, 250, 120], [300, 260, 140]],
+                                     [0.0, 2.54, 5.0])  # for 3 balls
 
     def __display_circle(self, frame, circle, name):
         cv2.circle(frame, (circle.x(), circle.y()), circle.radius(), (0, 255, 0), 2)
@@ -34,12 +37,14 @@ class Application(object):
     def run(self, amount_circles=2):
         camera = cv2.VideoCapture(0)
 
+        time.sleep(1)
+
         ret, frame = camera.read()
         self.__tracker = CircleTracker(frame.shape[1], frame.shape[0])
 
         while True:
             ret, frame = camera.read()
-            self.__simulator.step(frame)
+            #self.__simulator.step(frame)
             circle_positions = CircleDetector(frame).get(amount_circles)
 
             if circle_positions is not None:
