@@ -7,7 +7,7 @@ from juggling.circle_detector import CircleDetector
 
 class Application(object):
     def __init__(self):
-        self.__storage = CircleTracker()
+        self.__tracker = None
 
     def __display_circle(self, frame, circle, name):
         cv2.circle(frame, (circle.x(), circle.y()), circle.radius(), (0, 255, 0), 2)
@@ -32,16 +32,22 @@ class Application(object):
     def run(self, amount_circles=2):
         camera = cv2.VideoCapture(0)
 
+        ret, frame = camera.read()
+        self.__tracker = CircleTracker(frame.shape[1], frame.shape[0])
+
         while True:
             ret, frame = camera.read()
             circle_positions = CircleDetector(frame).get(amount_circles)
 
             if circle_positions is not None:
-                self.__storage.update(circle_positions)
+                self.__tracker.update(circle_positions)
 
-                circles = self.__storage.get()
+                circles = self.__tracker.get_circles()
                 for i in range(len(circles)):
                     self.__display_circle(frame, circles[i], str(i))
+
+                    info = "Laps for #%d: %d" % (i, self.__tracker.get_circle_laps(i))
+                    cv2.putText(frame, info, (0, (i + 1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), lineType=2)
             else:
                 logging.warning("Circles are not detected.")
 
