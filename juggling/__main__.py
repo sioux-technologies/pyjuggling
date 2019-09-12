@@ -1,44 +1,13 @@
 import cv2
 import logging
 
-from juggling.circle import Circle
+from juggling.circle_tracker import CircleTracker
 from juggling.circle_detector import CircleDetector
-from juggling.matcher import Matcher
-
-
-class CircleStorage:
-    def __init__(self):
-        self.__circles = None
-        self.__ignore_change = None
-
-    def get(self):
-        return self.__circles
-
-    def update(self, next_positions):
-        if self.__circles is None:
-            self.__circles = [Circle(position) for position in next_positions]
-            self.__ignore_change = [0] * len(next_positions)
-
-        else:
-            if len(next_positions) != len(self.__circles):
-                logging.warning("Amount of location is not equal to amount of circles.")
-                return
-
-            for i in range(len(self.__circles)):
-                distance, next_position = Matcher(self.__circles[i].position()).match(next_positions)
-                next_positions.remove(next_position)
-
-                change_threshold = self.__circles[i].average_change() * 5.0
-                if self.__ignore_change[i] > 2 or (distance < change_threshold and distance != 0):
-                    self.__circles[i].update(next_position, distance)
-                    self.__ignore_change[i] = 0
-                else:
-                    self.__ignore_change[i] += 1
 
 
 class Application(object):
     def __init__(self):
-        self.__storage = CircleStorage()
+        self.__storage = CircleTracker()
 
     def __display_circle(self, frame, circle, name):
         cv2.circle(frame, (circle.x(), circle.y()), circle.radius(), (0, 255, 0), 2)
@@ -47,8 +16,16 @@ class Application(object):
         for position in trajectory:
             cv2.circle(frame, (position[0], position[1]), 5, (255, 0, 0), -1)
 
+        avg_change = "avg. dh: %.1f" % circle.average_change()
+        speed = "v: %.1f" % circle.speed()
+        acceleration = "a: %.1f" % circle.acceleration()
+
         cv2.putText(frame, name, (circle.x(), circle.y()), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), lineType=2)
-        cv2.putText(frame, str(circle.average_change()), (circle.x() + 20, circle.y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        cv2.putText(frame, avg_change, (circle.x() + 20, circle.y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), lineType=2)
+        cv2.putText(frame, speed, (circle.x() + 20, circle.y() + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 255, 0), lineType=2)
+        cv2.putText(frame, acceleration, (circle.x() + 20, circle.y() + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), lineType=2)
 
 
@@ -78,4 +55,4 @@ class Application(object):
 
 
 test = Application()
-test.run()
+test.run(1)
