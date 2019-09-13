@@ -22,11 +22,15 @@ class Tracker:
         self.__max_radius = min(self.__height, self.__width) / 2
 
 
+    def __len__(self):
+        return len(self.__region)
+
+
     def get_circles(self):
         return self.__circles
 
 
-    def get_circle_laps(self, index):
+    def get_complete_motions(self, index):
         return self.__region[index].get_count()
 
 

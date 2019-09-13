@@ -7,7 +7,7 @@ class CircleDetector:
     def __init__(self, image):
         self._source_image = image
         self._dp = 2.0
-        self._max_radius = int(self._source_image.shape[0] / 4)
+        self._max_radius = int(self._source_image.shape[0] / 8)
         self._min_distance = int(self._source_image.shape[0] / 16)
 
     def __remove_empty_circles(self, circles):

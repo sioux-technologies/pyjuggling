@@ -4,8 +4,8 @@ import time
 
 
 class Telemerty:
-    _ds_len = 2
-    _t_len = 3
+    _ds_len = 2     # at lest 2 ds is require to calculate v and a
+    _t_len = 3      # three time points is required to calculate v and a
 
     def __init__(self):
         self._ds = collections.deque()     # distance rate of change
