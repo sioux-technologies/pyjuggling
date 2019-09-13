@@ -35,7 +35,3 @@ class TestCircleDetector(unittest.TestCase):
 
     def test_circles_photo_colored_amount_6(self):
         self.template_amount("samples/circles_photo_colored_amount_6.png", 6)
-
-
-if __name__ == '__main__':
-    unittest.main()

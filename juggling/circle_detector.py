@@ -13,7 +13,7 @@ class CircleDetector:
 
     def __remove_empty_circles(self, circles):
         if circles is not None:
-            return [circle.tolist() for circle in circles[0, :] if circle[2] > 0]
+            return [circle.astype(int).tolist() for circle in circles[0, :] if circle[2] > 0]
         return None
 
 
@@ -36,6 +36,9 @@ class CircleDetector:
     def _get_circles(self, gray_image, center_threshold):
         circles = cv2.HoughCircles(gray_image, cv2.HOUGH_GRADIENT, self._dp, self._min_distance,
                                    param2=center_threshold, maxRadius=self._max_radius)
+
+        if circles is not None:
+            circles.astype(int)
 
         circles = self.__remove_empty_circles(circles)
         return self.__remove_duplicate_circles(circles)

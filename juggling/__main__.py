@@ -10,37 +10,32 @@ from juggling.simulator import Simulator
 class Application(object):
     def __init__(self):
         self.__tracker = None
-        #self.__simulator = Simulator([[100, 100, 40], [100, 100, 50]], [[250, 300, 120], [250, 250, 120]], [0.0, 3.14])  # for 2 balls
         self.__simulator = Simulator([[100, 100, 30], [100, 100, 30], [100, 100, 30]], [[250, 300, 120], [250, 250, 120], [300, 260, 140]],
                                      [0.0, 2.54, 5.0])  # for 3 balls
 
     def __display_circle(self, frame, circle, name):
-        cv2.circle(frame, (circle.x(), circle.y()), circle.radius(), (0, 255, 0), 2)
+        cv2.circle(frame, (circle.get_x(), circle.get_y()), circle.get_radius(), (0, 255, 0), 2)
 
-        trajectory = circle.trajectory()
+        trajectory = circle.get_trajectory()
         for position in trajectory:
             cv2.circle(frame, (position[0], position[1]), 5, (255, 0, 0), -1)
 
-        avg_change = "avg. dh: %.1f" % circle.average_change()
-        speed = "v: %.1f" % circle.speed()
-        acceleration = "a: %.1f" % circle.acceleration()
+        telemetry = circle.get_telemetry()
+        speed = "v: %.1f" % telemetry.get_speed()
+        acceleration = "a: %.1f" % telemetry.get_acceleration()
 
-        cv2.putText(frame, name, (circle.x(), circle.y()), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), lineType=2)
-        cv2.putText(frame, avg_change, (circle.x() + 20, circle.y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        cv2.putText(frame, name, (circle.get_x(), circle.get_y()), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), lineType=2)
+        cv2.putText(frame, speed, (circle.get_x() + 20, circle.get_y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), lineType=2)
-        cv2.putText(frame, speed, (circle.x() + 20, circle.y() + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    (0, 255, 0), lineType=2)
-        cv2.putText(frame, acceleration, (circle.x() + 20, circle.y() + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        cv2.putText(frame, acceleration, (circle.get_x() + 20, circle.get_y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), lineType=2)
 
 
     def run(self, amount_circles=2):
         camera = cv2.VideoCapture(0)
 
-        time.sleep(1)
-
         ret, frame = camera.read()
-        self.__tracker = CircleTracker(frame.shape[1], frame.shape[0])
+        self.__tracker = CircleTracker(frame)
 
         while True:
             ret, frame = camera.read()
@@ -69,4 +64,4 @@ class Application(object):
 
 
 test = Application()
-test.run(1)
+test.run(2)
