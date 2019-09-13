@@ -12,5 +12,6 @@ class ColorExtractor:
         cv2.circle(circle_mask, (self.__region[0], self.__region[1]), self.__region[2],
                    255, thickness=-1)
 
-        average_color = cv2.mean(self.__image, circle_mask)
+        blur_image = cv2.blur(self.__image, (11, 11))
+        average_color = cv2.mean(blur_image, circle_mask)
         return average_color

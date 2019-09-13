@@ -2,7 +2,7 @@ import abc
 import collections
 
 
-class RegionTracker(metaclass=abc.ABCMeta):
+class MotionTracker(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def track(self, position):
         ...
@@ -12,7 +12,7 @@ class RegionTracker(metaclass=abc.ABCMeta):
         ...
 
 
-class UpDownRegionTracker(RegionTracker):
+class UpDownMotionTracker(MotionTracker):
     def __init__(self):
         raise NotImplemented("To be implemented.")
 
@@ -23,7 +23,7 @@ class UpDownRegionTracker(RegionTracker):
         raise NotImplemented("To be implemented.")
 
 
-class LapRegionTracker(RegionTracker):
+class LapMotionTracker(MotionTracker):
     def __init__(self, image_height, image_width):
         self.__visited_regions = collections.deque()
         self.__image_height = image_height
@@ -33,11 +33,11 @@ class LapRegionTracker(RegionTracker):
         self.__laps = 0
 
     def track(self, position):
-        id = self.__get_block_id(position[0], position[1])
-        if (len(self.__visited_regions) > 0) and (id == self.__visited_regions[-1]):
+        location = self.__get_block_id(position[0], position[1])
+        if (len(self.__visited_regions) > 0) and (location == self.__visited_regions[-1]):
             return
 
-        self.__visited_regions.append(id)
+        self.__visited_regions.append(location)
         if len(self.__visited_regions) > 4:
             self.__visited_regions.popleft()
 

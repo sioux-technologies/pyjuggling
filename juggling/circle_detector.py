@@ -10,14 +10,23 @@ class CircleDetector:
         self._max_radius = int(self._source_image.shape[0] / 4)
         self._min_distance = int(self._source_image.shape[0] / 16)
 
-
     def __remove_empty_circles(self, circles):
+        """Removes from the collection empty circles. Despite minimum radius OpenCV returns circles with 0 radius.
+
+        :param circles: Collection of circles that should be checked for empty circles.
+        :return: Collection without empty circles.
+        """
         if circles is not None:
             return [circle.astype(int).tolist() for circle in circles[0, :] if circle[2] > 0]
         return None
 
-
     def __remove_duplicate_circles(self, circles):
+        """Removes from the collection non-unique circles. Despite minimum distance OpenCV returns circles with the
+        same radius.
+
+        :param circles: Collection of circles that should be checked for empty circles.
+        :return: Collection without non-unique circles.
+        """
         if circles is not None:
             unique_circles = []
             unique_map = [True] * len(circles)
@@ -32,8 +41,13 @@ class CircleDetector:
             return unique_circles
         return None
 
-
     def _get_circles(self, gray_image, center_threshold):
+        """Search circles using HoughCircles procedure and return only correct circles.
+
+        :param gray_image: Gray scaled image that is used for circle searching.
+        :param center_threshold: Center threshold parameter.
+        :return: Collection without empty and non-unique circles.
+        """
         circles = cv2.HoughCircles(gray_image, cv2.HOUGH_GRADIENT, self._dp, self._min_distance,
                                    param2=center_threshold, maxRadius=self._max_radius)
 
@@ -43,8 +57,13 @@ class CircleDetector:
         circles = self.__remove_empty_circles(circles)
         return self.__remove_duplicate_circles(circles)
 
-
     def _binary_search(self, gray_image, amount):
+        """Performs binary search of proper center threshold to extract required amount of circles.
+
+        :param gray_image: Gray scaled image.
+        :param amount: Required amount of circles that should found.
+        :return: Center threshold parameter and allocated circles.
+        """
         left, center_threshold, right = 1, CircleDetector._cache_center_threshold, 500
         circles = self._get_circles(gray_image, center_threshold)
 
@@ -59,12 +78,14 @@ class CircleDetector:
 
         return center_threshold, circles
 
-
     def get(self, amount=1):
+        """Extracts specified amount of circles from the image.
+
+        :param amount: Required amount of circles that should found (default is 1).
+        :return: Extracted circles that have been found on the image, otherwise None.
+        """
         image = cv2.medianBlur(self._source_image, 11)
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # gray_image = cv2.blur(gray_image, (20, 20))
-        # gray_image = cv2.medianBlur(gray_image, 11)  # median blur is better than `cv2.blur(gray_image, (11, 11))`
 
         threshold, circles = self._binary_search(gray_image, amount)
 

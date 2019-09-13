@@ -2,7 +2,7 @@ import cv2
 import logging
 import time
 
-from juggling.circle_tracker import CircleTracker
+from juggling.tracker import Tracker
 from juggling.circle_detector import CircleDetector
 from juggling.simulator import Simulator
 
@@ -27,7 +27,7 @@ class Application(object):
         cv2.putText(frame, name, (circle.get_x(), circle.get_y()), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), lineType=2)
         cv2.putText(frame, speed, (circle.get_x() + 20, circle.get_y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), lineType=2)
-        cv2.putText(frame, acceleration, (circle.get_x() + 20, circle.get_y()), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+        cv2.putText(frame, acceleration, (circle.get_x() + 20, circle.get_y() + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 255, 0), lineType=2)
 
 
@@ -35,7 +35,7 @@ class Application(object):
         camera = cv2.VideoCapture(0)
 
         ret, frame = camera.read()
-        self.__tracker = CircleTracker(frame)
+        self.__tracker = Tracker(frame)
 
         while True:
             ret, frame = camera.read()
