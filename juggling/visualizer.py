@@ -34,3 +34,8 @@ class Visualizer:
         for i in range(len(tracker)):
             info = "Laps for #%d: %d" % (i, tracker.get_complete_motions(i))
             cv2.putText(frame, info, (0, (i + 1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), lineType=2)
+
+    @staticmethod
+    def show_pattern(frame, locations):
+        for pattern in zip(*locations[::-1]):
+            cv2.rectangle(frame, pattern, (pattern[0] + 50, pattern[1] + 50), (0, 255, 0), 1)
