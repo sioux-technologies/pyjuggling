@@ -14,4 +14,3 @@ class PatternSearcher:
 
         locations = numpy.where(result >= threshold)
         return locations
-
