@@ -1,12 +1,12 @@
 import numpy
 import unittest
 
-from juggling.telemetry import Telemerty
+from juggling.telemetry import Telemetry
 
 
 class TestTelemetry(unittest.TestCase):
     def test_calculation(self):
-        telemetry = Telemerty()
+        telemetry = Telemetry()
 
         t = [1, 2, 3, 4]
         s = [1, 4, 9, 16, 25]

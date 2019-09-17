@@ -3,7 +3,7 @@ import numpy
 import time
 
 
-class Telemerty:
+class Telemetry:
     _ds_len = 2     # at lest 2 ds is require to calculate v and a
     _t_len = 3      # three time points is required to calculate v and a
 
@@ -16,7 +16,7 @@ class Telemerty:
     def __str__(self):
         if self._v is None:
             return "v: 'None', a: 'None'"
-        return "v: '%.1f', a: '%.1f'" % (self._v[-1], self._a)
+        return "v: '%.1f', a: '%.3f'" % (self._v[-1], self._a)
 
     def update(self, ds, t=None):
         self._update_ds(ds)

@@ -1,16 +1,24 @@
+import enum
 import logging
 
 from juggling.circle import Circle
 from juggling.color_extractor import ColorExtractor
 from juggling.metric import euclidean
-from juggling.motion_tracker import LapMotionTracker
+from juggling.motion_tracker import UpDownMotionTracker
+
+
+class FeatureType(enum.IntEnum):
+    Common = 0,
+    SameColor = 1
 
 
 class Tracker:
-    def __init__(self, image):
+    def __init__(self, image, ftype=FeatureType.Common):
         self.__circles = None
         self.__region = None
         self.__ignore_change = None
+
+        self._ftype = ftype
 
         self.__image = image
         self.__height = image.shape[1]
@@ -21,25 +29,23 @@ class Tracker:
         self.__max_color = [255, 255, 255]
         self.__max_radius = min(self.__height, self.__width) / 2
 
-
     def __len__(self):
+        if self.__region is None:
+            return 0
         return len(self.__region)
-
 
     def get_circles(self):
         return self.__circles
 
-
     def get_complete_motions(self, index):
         return self.__region[index].get_count()
-
 
     def update(self, next_positions):
         if self.__circles is None:
             self.__circles = [Circle(next_positions[i], ColorExtractor(self.__image, next_positions[i]).extract())
                               for i in range(len(next_positions))]
 
-            self.__region = [LapMotionTracker(self.__height, self.__width) for _ in next_positions]
+            self.__region = [UpDownMotionTracker() for position in next_positions]
             self.__ignore_change = [0] * len(next_positions)
 
         else:
@@ -48,16 +54,22 @@ class Tracker:
             else:
                 self.__match_circles(next_positions)
 
-
-    def __normilize_features(self, positions, colors):
+    def __normalize_features(self, positions, colors):
         result = []
         for i in range(len(positions)):
-            result.append(self.__normilize_feature(positions[i], colors[i]))
+            result.append(self.__normalize_feature(positions[i], colors[i]))
 
         return result
 
+    def __normalize_feature(self, position, color):
+        if self._ftype == FeatureType.Common:
+            return self.__normalize_common_feature(position, color)
+        elif self._ftype == FeatureType.SameColor:
+            return self.__normilize_same_color_feature(position)
+        else:
+            raise NotImplemented("'%s' feature type is not supported." % self._ftype)
 
-    def __normilize_feature(self, position, color):
+    def __normalize_common_feature(self, position, color):
         return [position[0] / self.__width,                          # x
                 position[1] / self.__height,                         # y
                 position[2] / min(self.__height, self.__width),      # radius
@@ -65,6 +77,9 @@ class Tracker:
                 color[1] / 255,  # G
                 color[2] / 255]  # B
 
+    def __normilize_same_color_feature(self, position):
+        return [position[0] / self.__width,                          # x
+                position[1] / self.__height]                         # y
 
     def __update_state(self, index_circle, position, color):
         current_circle = self.__circles[index_circle]
@@ -73,16 +88,20 @@ class Tracker:
         self.__circles[index_circle].update(position, distance, color)
         self.__region[index_circle].track(position)
 
+    def __mark_circles_invisible(self):
+        for circle in self.__circles:
+            circle.invisible()
 
     def __match_circles(self, next_positions):
         next_colors = [ColorExtractor(self.__image, position).extract() for position in next_positions]
-        extracted_patterns = self.__normilize_features(next_positions, next_colors)
+        extracted_patterns = self.__normalize_features(next_positions, next_colors)
 
         circle_dissimilarity = []
 
+        self.__mark_circles_invisible()
         for i in range(len(self.__circles)):
             current_circle = self.__circles[i]
-            current_pattern = self.__normilize_feature(current_circle.get_position(), current_circle.get_color())
+            current_pattern = self.__normalize_feature(current_circle.get_position(), current_circle.get_color())
 
             for index_pattern in range(len(extracted_patterns)):
                 distance = euclidean(current_pattern, extracted_patterns[index_pattern])

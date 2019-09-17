@@ -1,11 +1,10 @@
 import cv2
 import logging
-import numpy
 
-from juggling.tracker import Tracker
-from juggling.circle_detector import CircleDetector, ColorCircleDetector
+from juggling.tracker import Tracker, FeatureType
+from juggling.circle_detector import ColorCircleDetector
 from juggling.pattern_searcher import PatternSearcher
-from juggling.visualizer import Visualizer
+from juggling.visualizer import Visualizer, Style
 
 from juggling.simulator import Simulator
 
@@ -22,7 +21,7 @@ class Application(object):
         camera = cv2.VideoCapture(0)
 
         ret, frame = camera.read()
-        self.__tracker = Tracker(frame)
+        self.__tracker = Tracker(frame, FeatureType.SameColor)
 
         while True:
             ret, frame = camera.read()
@@ -34,16 +33,16 @@ class Application(object):
                 if circle_positions is not None:
                     self.__tracker.update(circle_positions)
                     circles = self.__tracker.get_circles()
-                    Visualizer.visualize(frame, circles, self.__tracker)
+                    Visualizer.visualize(frame, circles, self.__tracker, Style.Square)
                 else:
-                    logging.warning("Circles are not detected.")
+                    Visualizer.show_motion_tracking(frame, self.__tracker)
 
             else:
                 patterns = self.__pattern_searcher.search(frame, 0.7)
                 Visualizer.show_pattern(frame, patterns)
 
             cv2.imshow('Juggling', frame)
-            key_signal = cv2.waitKey(5)
+            key_signal = cv2.waitKey(1)
 
             if key_signal == 27:  # Esc key to stop
                 break
@@ -67,4 +66,4 @@ class Application(object):
 
 
 test = Application()
-test.run(1)
+test.run(2)

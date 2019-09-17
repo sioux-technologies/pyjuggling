@@ -119,7 +119,7 @@ class ColorCircleDetector(CircleDetector):
     Provides service to extract specified amount of colored circles (by default red). It uses color mask and Hough
     algorithm with binary search of proper parameters.
     """
-    def __init__(self, image, color_from=(0, 0, 130), color_to=(30, 30, 255)):
+    def __init__(self, image, color_from=(0, 0, 130), color_to=(50, 50, 255)):
         """
         Initializes circle detector instance.
 
@@ -138,7 +138,7 @@ class ColorCircleDetector(CircleDetector):
         :param amount: Required amount of circles that should found (default is 1).
         :return: Extracted circles that have been found on the image, otherwise None.
         """
-        image = cv2.medianBlur(self._source_image, 13)
+        image = cv2.blur(self._source_image, (11, 11))
         color_mask = cv2.inRange(image, self._color_from, self._color_to)
 
         image = cv2.bitwise_and(image, self._source_image, mask=color_mask)
