@@ -3,7 +3,7 @@ import logging
 import numpy
 
 from juggling.tracker import Tracker
-from juggling.circle_detector import CircleDetector
+from juggling.circle_detector import CircleDetector, ColorCircleDetector
 from juggling.pattern_searcher import PatternSearcher
 from juggling.visualizer import Visualizer
 
@@ -28,7 +28,7 @@ class Application(object):
             ret, frame = camera.read()
             original = frame.copy()
 
-            circle_positions = CircleDetector(frame).get(amount_circles)
+            circle_positions = ColorCircleDetector(frame).get(amount_circles)
 
             if self.__pattern_searcher is None:
                 if circle_positions is not None:
@@ -67,4 +67,4 @@ class Application(object):
 
 
 test = Application()
-test.run(2)
+test.run(1)

@@ -1,17 +1,32 @@
+"""
+Module contains classes that provide circle detection functionality:
+- CircleDetector - common circle detection.
+- ColorCircleDetector - circle detection with specific color.
+"""
+
 import cv2
 
 
 class CircleDetector:
+    """
+    Provides service to extract required amount of circles from an input image. It uses Hough algorithm to extract
+    circles and binary search algorithm to find proper parameters for the algorithm.
+    """
     _cache_center_threshold = 250
 
     def __init__(self, image):
+        """Initializes circle detector instance.
+
+        :param image: Colored image where circle detectors should be found.
+        """
         self._source_image = image
         self._dp = 2.0
         self._max_radius = int(self._source_image.shape[0] / 8)
         self._min_distance = int(self._source_image.shape[0] / 16)
 
     def __remove_empty_circles(self, circles):
-        """Removes from the collection empty circles. Despite minimum radius OpenCV returns circles with 0 radius.
+        """
+        Removes from the collection empty circles. Despite minimum radius OpenCV returns circles with 0 radius.
 
         :param circles: Collection of circles that should be checked for empty circles.
         :return: Collection without empty circles.
@@ -21,7 +36,8 @@ class CircleDetector:
         return None
 
     def __remove_duplicate_circles(self, circles):
-        """Removes from the collection non-unique circles. Despite minimum distance OpenCV returns circles with the
+        """
+        Removes from the collection non-unique circles. Despite minimum distance OpenCV returns circles with the
         same radius.
 
         :param circles: Collection of circles that should be checked for empty circles.
@@ -42,7 +58,8 @@ class CircleDetector:
         return None
 
     def _get_circles(self, gray_image, center_threshold):
-        """Search circles using HoughCircles procedure and return only correct circles.
+        """
+        Search circles using HoughCircles procedure and return only correct circles.
 
         :param gray_image: Gray scaled image that is used for circle searching.
         :param center_threshold: Center threshold parameter.
@@ -58,7 +75,8 @@ class CircleDetector:
         return self.__remove_duplicate_circles(circles)
 
     def _binary_search(self, gray_image, amount):
-        """Performs binary search of proper center threshold to extract required amount of circles.
+        """
+        Performs binary search of proper center threshold to extract required amount of circles.
 
         :param gray_image: Gray scaled image.
         :param amount: Required amount of circles that should found.
@@ -97,9 +115,39 @@ class CircleDetector:
 
 
 class ColorCircleDetector(CircleDetector):
-    def __init__(self, image, circle_color):
+    """
+    Provides service to extract specified amount of colored circles (by default red). It uses color mask and Hough
+    algorithm with binary search of proper parameters.
+    """
+    def __init__(self, image, color_from=(0, 0, 130), color_to=(30, 30, 255)):
+        """
+        Initializes circle detector instance.
+
+        :param image: Colored image where circle detectors should be found.
+        :param color_from: The lowest color value that is used for detection colored circle (by default min red color).
+        :param: color_to: The highest color value that is used for detection colored circle (by default max red color).
+        """
         super().__init__(image)
-        self._circle_color = circle_color
+        self._color_from = color_from
+        self._color_to = color_to
 
     def get(self, amount=1):
-        pass
+        """
+        Extracts specified amount of colored circles from the image.
+
+        :param amount: Required amount of circles that should found (default is 1).
+        :return: Extracted circles that have been found on the image, otherwise None.
+        """
+        image = cv2.medianBlur(self._source_image, 13)
+        color_mask = cv2.inRange(image, self._color_from, self._color_to)
+
+        image = cv2.bitwise_and(image, self._source_image, mask=color_mask)
+
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        threshold, circles = self._binary_search(gray_image, amount)
+
+        if (circles is not None) and (len(circles) != amount):
+            return None
+
+        CircleDetector._cache_center_threshold = threshold
+        return circles
