@@ -1,7 +1,7 @@
 import cv2
 import logging
 
-from juggling.tracker import Tracker, FeatureType
+from juggling.tracker import Tracker
 from juggling.circle_detector import ColorCircleDetector
 from juggling.pattern_searcher import PatternSearcher
 from juggling.visualizer import Visualizer, Style
@@ -21,7 +21,7 @@ class Application(object):
         camera = cv2.VideoCapture(0)
 
         ret, frame = camera.read()
-        self.__tracker = Tracker(frame, FeatureType.SameColor)
+        self.__tracker = Tracker(frame)
 
         while True:
             ret, frame = camera.read()

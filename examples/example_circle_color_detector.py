@@ -17,6 +17,9 @@ images = ["../tests/samples/circles_simple_red_amount_3_02.png",
 
 count = [3, 3, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3]
 
+# images = ["../tests/samples/photo_reddish_ball_06.jpg"]
+# count = [2]
+
 for i in range(len(images)):
     path = images[i]
     amount = count[i]
