@@ -12,6 +12,12 @@ class TestColorCircleDetector(unittest.TestCase):
         self.assertIsNotNone(circles)
         self.assertEqual(amount, len(circles))
 
+    def test_simple_amount_3_reddish_1(self):
+        self.template_amount("samples/circles_simple_red_amount_3_01.png", 3)
+
+    def test_simple_amount_3_reddish_2(self):
+        self.template_amount("samples/circles_simple_red_amount_3_02.png", 3)
+
     def test_photo_amount_1_reddish_1(self):
         self.template_amount("samples/photo_reddish_ball_01.jpg", 1)
 
@@ -23,3 +29,21 @@ class TestColorCircleDetector(unittest.TestCase):
 
     def test_photo_amount_2_reddish_1(self):
         self.template_amount("samples/photo_reddish_ball_04.jpg", 2)
+
+    def test_photo_amount_2_reddish_2(self):
+        self.template_amount("samples/photo_reddish_ball_05.jpg", 2)
+
+    def test_photo_amount_2_reddish_3(self):
+        self.template_amount("samples/photo_reddish_ball_06.jpg", 2)
+
+    def test_photo_amount_2_reddish_4(self):
+        self.template_amount("samples/photo_reddish_ball_07.jpg", 2)
+
+    def test_photo_amount_3_reddish_1(self):
+        self.template_amount("samples/photo_reddish_ball_08.jpg", 3)
+
+    def test_photo_amount_3_reddish_2(self):
+        self.template_amount("samples/photo_reddish_ball_09.jpg", 3)
+
+    def test_photo_amount_3_reddish_3(self):
+        self.template_amount("samples/photo_reddish_ball_10.jpg", 3)

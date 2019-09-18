@@ -84,13 +84,33 @@ class Tracker:
     def __update_state(self, index_circle, position, color):
         current_circle = self.__circles[index_circle]
 
-        distance = euclidean(current_circle.get_position()[0:2], position[0:2])
-        self.__circles[index_circle].update(position, distance, color)
+        x_distance = abs(current_circle.get_position()[0] - position[0])
+        y_distance = abs(current_circle.get_position()[1] - position[1])
+
+        self.__circles[index_circle].update(position, x_distance, y_distance, color)
         self.__region[index_circle].track(position)
+
+    def __check_point_in_area(self, pos_prev, pos, dx, dy):
+        x_prev, y_prev, x, y = pos_prev[0], pos_prev[1], pos[0], pos[1]
+        if abs(x_prev - x) < dx and abs(y_prev - y) < dy:
+            return True
+        return False
+
+    def __predicted_next_positions(self, circle, positions):
+        predicted_position = []
+        for i in range(len(positions)):
+            covered = self.__check_point_in_area(positions[i], circle.get_position(),
+                                                 circle.get_x_telemetry().predict_distance_change(),
+                                                 circle.get_y_telemetry().predict_distance_change())
+            if covered is True:
+                predicted_position.append(i)
+
+        return predicted_position
 
     def __mark_circles_invisible(self):
         for circle in self.__circles:
             circle.invisible()
+
 
     def __match_circles(self, next_positions):
         next_colors = [ColorExtractor(self.__image, position).extract() for position in next_positions]
@@ -108,16 +128,22 @@ class Tracker:
                 circle_dissimilarity.append((i, index_pattern, distance))
 
         circle_dissimilarity.sort(key=lambda descriptor: descriptor[2])
+        print(circle_dissimilarity)
 
         assigned_patterns = set()
+        updated_circles = set()
         for item in circle_dissimilarity:
             index_circle = item[0]
             index_pattern = item[1]
 
-            if index_pattern in assigned_patterns:
+            if (index_pattern in assigned_patterns) or (index_circle in updated_circles):
                 continue
 
             assigned_patterns.add(index_pattern)
+            updated_circles.add(index_circle)
+            print("Update %d to %d with distance %f" % (index_circle, index_pattern, item[2]))
+
             self.__update_state(index_circle, next_positions[index_pattern], next_colors[index_pattern])
 
+        print(updated_circles)
         assert len(assigned_patterns) == len(self.__circles)

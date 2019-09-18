@@ -2,12 +2,20 @@ import cv2
 from juggling.circle_detector import ColorCircleDetector
 
 
-images = ["../tests/samples/photo_reddish_ball_01.jpg",
+images = ["../tests/samples/circles_simple_red_amount_3_02.png",
+          "../tests/samples/circles_simple_red_amount_3_01.png",
+          "../tests/samples/photo_reddish_ball_01.jpg",
           "../tests/samples/photo_reddish_ball_02.jpg",
           "../tests/samples/photo_reddish_ball_03.jpg",
-          "../tests/samples/photo_reddish_ball_04.jpg"]
+          "../tests/samples/photo_reddish_ball_04.jpg",
+          "../tests/samples/photo_reddish_ball_05.jpg",
+          "../tests/samples/photo_reddish_ball_06.jpg",
+          "../tests/samples/photo_reddish_ball_07.jpg",
+          "../tests/samples/photo_reddish_ball_08.jpg",
+          "../tests/samples/photo_reddish_ball_09.jpg",
+          "../tests/samples/photo_reddish_ball_10.jpg"]
 
-count = [1, 1, 1, 2]
+count = [3, 3, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3]
 
 for i in range(len(images)):
     path = images[i]
@@ -22,3 +30,6 @@ for i in range(len(images)):
 
         cv2.imshow("Result", image)
         cv2.waitKey(0)
+
+    else:
+        print("Nothing is found for '%s'." % path)

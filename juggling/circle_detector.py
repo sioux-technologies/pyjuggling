@@ -5,6 +5,7 @@ Module contains classes that provide circle detection functionality:
 """
 
 import cv2
+import numpy
 
 
 class CircleDetector:
@@ -119,7 +120,7 @@ class ColorCircleDetector(CircleDetector):
     Provides service to extract specified amount of colored circles (by default red). It uses color mask and Hough
     algorithm with binary search of proper parameters.
     """
-    def __init__(self, image, color_from=(0, 0, 130), color_to=(50, 50, 255)):
+    def __init__(self, image, color_from=(0, 0, 130), color_to=(60, 60, 255)):
         """
         Initializes circle detector instance.
 
@@ -138,6 +139,9 @@ class ColorCircleDetector(CircleDetector):
         :param amount: Required amount of circles that should found (default is 1).
         :return: Extracted circles that have been found on the image, otherwise None.
         """
+        return self.__get_by_color_contours(amount)
+
+    def __get_by_color_detection(self, amount):
         image = cv2.blur(self._source_image, (11, 11))
         color_mask = cv2.inRange(image, self._color_from, self._color_to)
 
@@ -150,4 +154,26 @@ class ColorCircleDetector(CircleDetector):
             return None
 
         CircleDetector._cache_center_threshold = threshold
+        return circles
+
+    def __get_by_color_contours(self, amount):
+        image = cv2.blur(self._source_image, (11, 11))
+        color_mask = cv2.inRange(image, self._color_from, self._color_to)
+
+        _, contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        if len(contours) < amount:
+            return None
+
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+        required_contours = contours[0:amount]
+
+        circles = []
+        for contour in required_contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            rc = int((w + h) / 4)
+            circles.append([x + rc, y + rc, rc])
+
+        if (circles is not None) and (len(circles) != amount):
+            return None
+
         return circles

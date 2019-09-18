@@ -1,6 +1,8 @@
 import cv2
 import enum
 
+from juggling.metric import euclidean
+
 
 class Style(enum.IntEnum):
     Circle = 0,
@@ -23,8 +25,9 @@ class Visualizer:
 
         x = circle.get_x()
         y = circle.get_y()
-        v = "v: %.1f" % circle.get_telemetry().get_speed()
-        a = "a: %.1f" % circle.get_telemetry().get_acceleration()
+        v = "v: %.1f" % euclidean(circle.get_x_telemetry().get_speed(), circle.get_y_telemetry().get_speed())
+        a = "a: %.1f" % euclidean(circle.get_y_telemetry().get_acceleration(),
+                                  circle.get_y_telemetry().get_acceleration())
 
         cv2.putText(frame, name, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), lineType=2)
         cv2.putText(frame, v, (x + 20, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), lineType=2)
@@ -32,7 +35,7 @@ class Visualizer:
 
     @staticmethod
     def _show_circle_as_square(frame, circle, name):
-        x, y, r, m = circle.get_x(), circle.get_y(), circle.get_radius(), 2
+        x, y, r, m = circle.get_x(), circle.get_y(), circle.get_radius(), 1
         cv2.rectangle(frame, (x - r * m, y - r * m), (x + r * m, y + r * m), (0, 255, 0), 2)
 
         trajectory = circle.get_trajectory()
