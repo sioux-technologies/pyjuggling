@@ -90,27 +90,23 @@ class Tracker:
         self.__circles[index_circle].update(position, x_distance, y_distance, color)
         self.__region[index_circle].track(position)
 
-    def __check_point_in_area(self, pos_prev, pos, dx, dy):
+    def __check_point_in_area(self, pos_prev, pos, dx, dy, m, r):
+        if dx is None or dy is None:
+            return True
+
+        if dx * m < r:
+            dx = r
+        if dy * m < r:
+            dy = r
+
         x_prev, y_prev, x, y = pos_prev[0], pos_prev[1], pos[0], pos[1]
-        if abs(x_prev - x) < dx and abs(y_prev - y) < dy:
+        if (abs(x_prev - x) < dx * m) and (abs(y_prev - y) < dy * m):
             return True
         return False
-
-    def __predicted_next_positions(self, circle, positions):
-        predicted_position = []
-        for i in range(len(positions)):
-            covered = self.__check_point_in_area(positions[i], circle.get_position(),
-                                                 circle.get_x_telemetry().predict_distance_change(),
-                                                 circle.get_y_telemetry().predict_distance_change())
-            if covered is True:
-                predicted_position.append(i)
-
-        return predicted_position
 
     def __mark_circles_invisible(self):
         for circle in self.__circles:
             circle.invisible()
-
 
     def __match_circles(self, next_positions):
         next_colors = [ColorExtractor(self.__image, position).extract() for position in next_positions]
@@ -128,7 +124,6 @@ class Tracker:
                 circle_dissimilarity.append((i, index_pattern, distance))
 
         circle_dissimilarity.sort(key=lambda descriptor: descriptor[2])
-        print(circle_dissimilarity)
 
         assigned_patterns = set()
         updated_circles = set()
@@ -139,11 +134,18 @@ class Tracker:
             if (index_pattern in assigned_patterns) or (index_circle in updated_circles):
                 continue
 
+            # make sure that it is possible in line telemetry
+            if not self.__check_point_in_area(self.__circles[index_circle].get_position(),
+                                              next_positions[index_pattern],
+                                              self.__circles[index_circle].get_x_telemetry().predict_distance_change(),
+                                              self.__circles[index_circle].get_y_telemetry().predict_distance_change(),
+                                              1,
+                                              self.__circles[index_circle].get_radius()):
+                continue
+
             assigned_patterns.add(index_pattern)
             updated_circles.add(index_circle)
-            print("Update %d to %d with distance %f" % (index_circle, index_pattern, item[2]))
 
             self.__update_state(index_circle, next_positions[index_pattern], next_colors[index_pattern])
 
-        print(updated_circles)
-        assert len(assigned_patterns) == len(self.__circles)
+        #print(updated_circles)

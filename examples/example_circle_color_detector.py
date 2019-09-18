@@ -25,7 +25,7 @@ for i in range(len(images)):
     circles = ColorCircleDetector(image).get(amount)
     if circles is not None:
         for circle in circles:
-            x, y, r = circle[0], circle[1], circle[2] * 2
+            x, y, r = circle[0], circle[1], circle[2]
             cv2.rectangle(image, (x - r, y - r), (x + r, y + r), (0, 255, 0), thickness=2)
 
         cv2.imshow("Result", image)
