@@ -233,8 +233,8 @@ class ColorCircleDetector(CircleDetector):
         image = cv2.blur(self._source_image, (11, 11))
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        mask_left_hsv = cv2.inRange(image_hsv, (0, 190, 120), (10, 255, 255))
-        mask_right_hsv = cv2.inRange(image_hsv, (170, 190, 120), (180, 255, 255))
+        mask_left_hsv = cv2.inRange(image_hsv, (0, 150, 120), (10, 255, 255))
+        mask_right_hsv = cv2.inRange(image_hsv, (170, 150, 120), (180, 255, 255))
 
         color_mask_hsv = cv2.bitwise_or(mask_left_hsv, mask_right_hsv)
 

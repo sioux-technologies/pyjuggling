@@ -7,7 +7,7 @@ from juggling.motion_tracker import UpDownMotionTracker
 
 
 class Tracker:
-    __ignore_threshold = 2
+    __ignore_threshold = 1
 
     def __init__(self, image):
         self.__circles = None

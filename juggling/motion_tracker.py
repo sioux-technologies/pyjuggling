@@ -21,8 +21,8 @@ class UpDownMotionTracker(MotionTracker):
 
     __trajectory_size = 5
     __motion_size = 2
-    __peek_threshold = 20
-    __accept_change_direction = 2
+    __peek_threshold = 40
+    __accept_change_direction = 1
     __pattern = [Direction.Up, Direction.Down]
 
     def __init__(self):
