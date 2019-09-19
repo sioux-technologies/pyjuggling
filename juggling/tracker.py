@@ -7,9 +7,12 @@ from juggling.motion_tracker import UpDownMotionTracker
 
 
 class Tracker:
+    __ignore_threshold = 2
+
     def __init__(self, image):
         self.__circles = None
         self.__region = None
+        self.__ignore = None
 
         self.__image = image
         self.__height = image.shape[1]
@@ -27,10 +30,10 @@ class Tracker:
         return self.__region[index].get_count()
 
     def update(self, next_positions):
-        print(next_positions)
         if self.__circles is None:
             self.__circles = [Circle(next_positions[i], None) for i in range(len(next_positions))]
             self.__region = [UpDownMotionTracker() for _ in next_positions]
+            self.__ignore = [0] * len(next_positions)
 
         else:
             if len(next_positions) != len(self.__circles):
@@ -46,6 +49,7 @@ class Tracker:
 
         self.__circles[index_circle].update(position, x_distance, y_distance, color)
         self.__region[index_circle].track(position)
+        self.__ignore[index_circle] = 0
 
     def __mark_circles_invisible(self):
         for circle in self.__circles:
@@ -54,6 +58,12 @@ class Tracker:
     def __match_circles(self, next_positions):
         self.__mark_circles_invisible()
         results = Matcher(self.__height, self.__width, self.__circles).match(next_positions, None)
-        print(results)
+        # print("--------------------")
+        # print("Circles:          %s" % str(self.__circles))
+        # print("Matching results: %s" % results)
         for result in results:
-            self.__update_state(result.index_circle, result.next_position, None)
+            index_circle = result.index_circle
+            if result.relible is True or self.__ignore[index_circle] > self.__ignore_threshold:
+                self.__update_state(index_circle, result.next_position, None)
+            else:
+                self.__ignore[index_circle] += 1

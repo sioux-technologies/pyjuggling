@@ -21,6 +21,12 @@ class Circle:
         self.__trajectory.append((self.get_x(), self.get_y()))
         self.__radius_values.append(self.get_radius())
 
+    def __str__(self):
+        return str(self.__position)
+
+    def __repr__(self):
+        return str(self)
+
     def get_x(self):
         return self.__position[0]
 

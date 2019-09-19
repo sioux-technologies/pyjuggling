@@ -2,10 +2,19 @@ from juggling.metric import euclidean
 
 
 class MatchResult:
-    def __init__(self, index_circle, position, next_color):
+    def __init__(self, index_circle, position, next_color, distance, relible):
         self.index_circle = index_circle
         self.next_position = position
         self.next_color = next_color
+        self.distance = distance
+        self.relible = relible
+
+    def __str__(self):
+        return str("circle: '%d', distance: '%f', position '%s'" %
+                   (self.index_circle, self.distance, str(self.next_position)))
+
+    def __repr__(self):
+        return str(self)
 
 
 class Matcher:
@@ -84,18 +93,20 @@ class Matcher:
         for item in circle_dissimilarity:
             index_circle = item[0]
             index_pattern = item[1]
+            distance = item[2]
 
             if (index_pattern in assigned_patterns) or (index_circle in updated_circles):
                 continue
 
             # make sure that it is possible in line telemetry
-            # if not self._check_point_in_area(self.__circles[index_circle].get_position(),
-            #                                  next_positions[index_pattern],
-            #                                  self.__circles[index_circle].get_x_telemetry().predict_distance_change(),
-            #                                  self.__circles[index_circle].get_y_telemetry().predict_distance_change(),
-            #                                  5,
-            #                                  self.__circles[index_circle].get_radius()):
-            #     continue
+            reliable = True
+            if not self._check_point_in_area(self.__circles[index_circle].get_position(),
+                                             next_positions[index_pattern],
+                                             self.__circles[index_circle].get_x_telemetry().predict_distance_change(),
+                                             self.__circles[index_circle].get_y_telemetry().predict_distance_change(),
+                                             10,
+                                             self.__circles[index_circle].get_radius()):
+                reliable = False
 
             assigned_patterns.add(index_pattern)
             updated_circles.add(index_circle)
@@ -104,6 +115,6 @@ class Matcher:
             if next_colors is not None:
                 next_color = next_colors[index_pattern]
 
-            result.append(MatchResult(index_circle, next_positions[index_pattern], next_color))
+            result.append(MatchResult(index_circle, next_positions[index_pattern], next_color, distance, reliable))
 
         return result

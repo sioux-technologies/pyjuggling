@@ -5,7 +5,8 @@ Module contains classes that provide circle detection functionality:
 """
 
 import cv2
-import numpy
+
+from pyclustering.cluster.agglomerative import agglomerative
 
 
 class CircleDetector:
@@ -178,84 +179,71 @@ class ColorCircleDetector(CircleDetector):
         """
         return self.__get_by_color_detection(amount)
 
-    def __get_by_color_detection(self, amount):
-        image = cv2.blur(self._source_image, (9, 9))
-        color_mask = cv2.inRange(image, self._color_from, self._color_to)
+    def __get_farthest_circles(self, circles, clusters):
+        result = []
+        for cluster in clusters:
+            biggest_index = cluster[0]
+            biggest_square = 3.14 * circles[biggest_index][2] * circles[biggest_index][2]
 
-        image = cv2.bitwise_and(image, self._source_image, mask=color_mask)
+            for i in range(1, len(cluster)):
+                candidate_index = cluster[i]
+                candidate_square = 3.14 * circles[candidate_index][2] * circles[candidate_index][2]
 
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        threshold, circles = self._binary_search(gray_image, amount)
+                if candidate_square > biggest_square:
+                    biggest_index = candidate_index
+                    biggest_square = candidate_square
 
-        if (circles is not None) and (len(circles) != amount):
-            return None
+            result.append(circles[biggest_index])
 
-        CircleDetector._cache_center_threshold = threshold
-        return circles
+        return result
 
-    def __get_by_color_contours(self, amount):
-        image = cv2.blur(self._source_image, (9, 9))
-        color_mask = cv2.inRange(image, self._color_from, self._color_to)
-
-        _, contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        if len(contours) < amount:
-            return None
-
-        contours = sorted(contours, key=cv2.contourArea, reverse=True)
-
-        extracted_circles = []
-        debug_image = image.copy()
+    def __get_circles_from_contours(self, contours):
+        circles = []
         for contour in contours:
             moments = cv2.moments(contour)
             if moments["m00"] == 0.0:
                 continue
 
             x, y = int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"])
-
             _, _, w, h = cv2.boundingRect(contour)
+            r = int(max(w, h) / 2)
 
-            side = max(w, h)
-            if side < 100:
-                side *= 2
+            circles.append((x, y, r))
 
-            radius = int(side / 2)
+        return circles
 
-            y0, y1, x0, x1 = y - side, y + side, x - side, x + side
-            if x0 < 0:
-                x0 = 0
-            if y0 < 0:
-                y0 = 0
-            if radius < self._min_radius:
-                radius = self._min_radius
+    def __build_circles_from_contour(self, color_mask, amount):
+        _, contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        if len(contours) < amount:
+            return None
 
-            segment_image = image[y0:y1, x0:x1]
+        circles = self.__get_circles_from_contours(contours)
+        if len(circles) < amount:
+            return None
 
-            # For debug purpose
-            # cv2.rectangle(debug_image, (x0, y0), (x1, y1), (0, 255, 0), 2)
-            # cv2.imshow("Debug", debug_image)
-            # cv2.waitKey(0)
+        coordinates = [[c[0], c[1]] for c in circles]
 
-            segment_gray = cv2.cvtColor(segment_image, cv2.COLOR_BGR2GRAY)
-            segment_threshold, segment_circles = self._binary_search(segment_gray, 1, min_radius=1)
+        clustering_algorithm = agglomerative(coordinates, amount)
+        clustering_algorithm.process()
+        clusters = clustering_algorithm.get_clusters()
 
-            if segment_circles is not None:
-                for segment_circle in segment_circles:
-                    x, y, r = segment_circle[0] + x0, segment_circle[1] + y0, segment_circle[2]
-                    extracted_circles.append((segment_threshold, (x, y, r)))
+        return self.__get_farthest_circles(circles, clusters)
 
-        sorted(extracted_circles, key=lambda obj: obj[1], reverse=True)
+    def __get_by_color_detection(self, amount):
+        image = cv2.blur(self._source_image, (11, 11))
+        image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        circles = []
-        for circle_description in extracted_circles:
-            circles.append(circle_description[1])
+        mask_left_hsv = cv2.inRange(image_hsv, (0, 190, 120), (10, 255, 255))
+        mask_right_hsv = cv2.inRange(image_hsv, (170, 190, 120), (180, 255, 255))
 
-        circles = self._remove_duplicate_circles(circles)
-        circles = self._remove_overlapped_circles(circles)
+        color_mask_hsv = cv2.bitwise_or(mask_left_hsv, mask_right_hsv)
 
-        if circles is not None:
-            if len(circles) < amount:
-                return None
+        # image_cropped = cv2.bitwise_and(image, image, mask=color_mask_hsv)
+        # cv2.imshow("Cropped", image_cropped)
 
-            circles = circles[0:amount]
+        circles = self.__build_circles_from_contour(color_mask_hsv, amount)
+
+        if (circles is not None) and (len(circles) != amount):
+            return None
 
         return circles

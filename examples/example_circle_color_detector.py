@@ -13,11 +13,13 @@ images = ["../tests/samples/circles_simple_red_amount_3_02.png",
           "../tests/samples/photo_reddish_ball_07.jpg",
           "../tests/samples/photo_reddish_ball_08.jpg",
           "../tests/samples/photo_reddish_ball_09.jpg",
-          "../tests/samples/photo_reddish_ball_10.jpg"]
+          "../tests/samples/photo_reddish_ball_10.jpg",
+          "../tests/samples/photo_reddish_ball_11.jpg",
+          "../tests/samples/photo_reddish_ball_12.jpg"]
 
-count = [3, 3, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3]
+count = [3, 3, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 2, 2]
 
-# images = ["../tests/samples/photo_reddish_ball_06.jpg"]
+# images = ["../tests/samples/photo_reddish_ball_12.jpg"]
 # count = [2]
 
 for i in range(len(images)):
@@ -36,3 +38,4 @@ for i in range(len(images)):
 
     else:
         print("Nothing is found for '%s'." % path)
+        cv2.waitKey(0)

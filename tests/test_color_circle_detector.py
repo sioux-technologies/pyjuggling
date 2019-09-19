@@ -47,3 +47,9 @@ class TestColorCircleDetector(unittest.TestCase):
 
     def test_photo_amount_3_reddish_3(self):
         self.template_amount("samples/photo_reddish_ball_10.jpg", 3)
+
+    def test_photo_amount_2_reddish_5(self):
+        self.template_amount("samples/photo_reddish_ball_11.jpg", 2)
+
+    def test_photo_amount_2_reddish_6(self):
+        self.template_amount("samples/photo_reddish_ball_12.jpg", 2)
