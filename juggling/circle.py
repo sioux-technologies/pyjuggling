@@ -4,6 +4,9 @@ from juggling.telemetry import Telemetry
 
 
 class Circle:
+    """
+    Stores information that describes circle in 2-dimensional space.
+    """
     __trajectory_length = 12
     __radius_values_length = 10
 
@@ -52,12 +55,27 @@ class Circle:
         return self.__y_telemetry
 
     def is_visible(self):
+        """
+        :return: True if a circle is visible (observable).
+        """
         return self.__visible
 
     def invisible(self):
+        """
+        Mark circle as invisible that means that circle is not observable.
+        """
         self.__visible = False
 
     def update(self, position, x_ds, y_ds, color):
+        """
+        Updates circle in line with position on an image. When update method is called then circle visibility property
+        becomes True.
+
+        :param position: New circle's coordinates (x, y, radius).
+        :param x_ds: Distance changes on X-axis.
+        :param y_ds: Distance changes on Y-axis.
+        :param color: New color description.
+        """
         self.__position = position
         self.__trajectory.append((position[0], position[1]))
         self.__radius_values.append(position[2])

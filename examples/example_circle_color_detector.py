@@ -27,7 +27,8 @@ for i in range(len(images)):
     amount = count[i]
 
     image = cv2.imread(path)
-    circles = ColorCircleDetector(image).get(amount)
+    color_ranges = [[(0, 150, 120), (10, 255, 255)], [(170, 150, 120), (180, 255, 255)]]
+    circles = ColorCircleDetector(image, color_ranges).get(amount)
     if circles is not None:
         for circle in circles:
             x, y, r = circle[0], circle[1], circle[2]

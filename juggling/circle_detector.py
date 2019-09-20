@@ -24,7 +24,7 @@ class CircleDetector:
         self._source_image = image
         self._dp = 2.0
         self._max_radius = int(self._source_image.shape[0] / 8)
-        self._min_radius = 5
+        self._min_radius = int(self._source_image.shape[0] / 20)
         self._min_distance = int(self._source_image.shape[0] / 16)
 
     def _remove_empty_circles(self, circles):
@@ -153,22 +153,20 @@ class CircleDetector:
         return circles
 
 
-class ColorCircleDetector(CircleDetector):
+class ColorCircleDetector:
     """
     Provides service to extract specified amount of colored circles (by default red). It uses color mask and Hough
     algorithm with binary search of proper parameters.
     """
-    def __init__(self, image, color_from=(0, 0, 130), color_to=(40, 40, 255)):
+    def __init__(self, image, color_ranges):
         """
         Initializes circle detector instance.
 
         :param image: Colored image where circle detectors should be found.
-        :param color_from: The lowest color value that is used for detection colored circle (by default min red color).
-        :param: color_to: The highest color value that is used for detection colored circle (by default max red color).
+        :param color_ranges: List of lowest and highest colors that are used for detection colored circle.
         """
-        super().__init__(image)
-        self._color_from = color_from
-        self._color_to = color_to
+        self.__source_image = image
+        self.__color_ranges = color_ranges
 
     def get(self, amount=1):
         """
@@ -213,7 +211,7 @@ class ColorCircleDetector(CircleDetector):
         return circles
 
     def __build_circles_from_contour(self, color_mask, amount):
-        _, contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, _ = cv2.findContours(color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         if len(contours) < amount:
             return None
 
@@ -230,18 +228,20 @@ class ColorCircleDetector(CircleDetector):
         return self.__get_farthest_circles(circles, clusters)
 
     def __get_by_color_detection(self, amount):
-        image = cv2.blur(self._source_image, (11, 11))
+        image = cv2.blur(self.__source_image, (11, 11))
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        mask_left_hsv = cv2.inRange(image_hsv, (0, 150, 120), (10, 255, 255))
-        mask_right_hsv = cv2.inRange(image_hsv, (170, 150, 120), (180, 255, 255))
+        mask_color_hsv = cv2.inRange(image_hsv, self.__color_ranges[0][0], self.__color_ranges[0][1])
+        for index_range in range(1, len(self.__color_ranges)):
+            color_range = self.__color_ranges[index_range]
+            mask_additional_hsv = cv2.inRange(image_hsv, color_range[0], color_range[1])
 
-        color_mask_hsv = cv2.bitwise_or(mask_left_hsv, mask_right_hsv)
+            mask_color_hsv = cv2.bitwise_or(mask_color_hsv, mask_additional_hsv)
 
-        # image_cropped = cv2.bitwise_and(image, image, mask=color_mask_hsv)
+        # image_cropped = cv2.bitwise_and(image, image, mask=mask_color_hsv)
         # cv2.imshow("Cropped", image_cropped)
 
-        circles = self.__build_circles_from_contour(color_mask_hsv, amount)
+        circles = self.__build_circles_from_contour(mask_color_hsv, amount)
 
         if (circles is not None) and (len(circles) != amount):
             return None

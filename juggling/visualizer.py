@@ -72,7 +72,8 @@ class Visualizer:
 
         for i in range(len(tracker)):
             info = "Laps for #%d: %d" % (i, tracker.get_complete_motions(i))
-            cv2.putText(frame, info, (0, (i + 1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), lineType=2)
+            cv2.putText(frame, info, (0, (i + 1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0),
+                        thickness=2, lineType=2)
 
     @staticmethod
     def show_pattern(frame, locations):

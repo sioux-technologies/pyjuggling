@@ -58,6 +58,17 @@ class Matcher:
                 position[1] / self.__height]                         # y
 
     def _check_point_in_area(self, pos_prev, pos, dx, dy, m, r):
+        """
+        Calculates whether point position in specified area.
+
+        :param pos_prev: Previous circle position.
+        :param pos: New circle position that is checked.
+        :param dx: Most probable change on x-axis. Can be considered as a rectangle side on x-axis.
+        :param dy: Most probable change on y-axis. Can be considered as a rectangle side on y-axis.
+        :param m: Multiplier to scale changes on x-axis and y-axis.
+        :param r: Circle radius.
+        :return: True if specified point in specified area, otherwise False.
+        """
         if dx is None or dy is None:
             return True
 
@@ -72,6 +83,15 @@ class Matcher:
         return False
 
     def match(self, next_positions, next_colors=None):
+        """
+        Find the more likely position for each circle by calculating dissimilarity and position prediction in line
+        with telemetry.
+
+        :param next_positions: New positions for each circle.
+        :param next_colors: New colors for each circle.
+        :return: Most probable position for each circle.
+        :type: array_like
+        """
         extracted_patterns = self._normalize_features(next_positions, next_colors)
 
         circle_dissimilarity = []

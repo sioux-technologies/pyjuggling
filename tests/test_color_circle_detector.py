@@ -7,7 +7,8 @@ from juggling.circle_detector import ColorCircleDetector
 class TestColorCircleDetector(unittest.TestCase):
     def template_amount(self, image_path, amount):
         image = cv2.imread(image_path)
-        circles = ColorCircleDetector(image).get(amount)
+        color_ranges = [[(0, 150, 120), (10, 255, 255)], [(170, 150, 120), (180, 255, 255)]]
+        circles = ColorCircleDetector(image, color_ranges).get(amount)
 
         self.assertIsNotNone(circles)
         self.assertEqual(amount, len(circles))
