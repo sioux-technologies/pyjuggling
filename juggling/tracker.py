@@ -14,6 +14,7 @@ class Tracker:
     Provides service to monitor circles: store them, match with changes and update circle states.
     """
     __ignore_threshold = 1
+    __skip_threshold = 3
 
     def __init__(self, height, width):
         """
@@ -25,6 +26,7 @@ class Tracker:
         self.__circles = None
         self.__region = None
         self.__ignore = None
+        self.__skip = 0
 
         self.__height = height
         self.__width = width
@@ -65,25 +67,20 @@ class Tracker:
             self.__ignore = [0] * len(next_positions)
 
         else:
-            if len(next_positions) != len(self.__circles):
-                logging.warning("Amount of location is not equal to amount of circles.")
-            else:
-                self.__match_circles(next_positions)
+            self.__match_circles(next_positions)
 
-    def __update_state(self, index_circle, position, color):
+        self.__skip = 0
+
+    def __update_state(self, index_circle, position):
         """
         Updates state of specified circle and marks circle as visible.
 
         :param index_circle: Index that defines circle.
         :param position: New position and radius for specified circle.
-        :param color: New average color for specified circle.
         """
         current_circle = self.__circles[index_circle]
 
-        x_distance = abs(current_circle.get_position()[0] - position[0])
-        y_distance = abs(current_circle.get_position()[1] - position[1])
-
-        self.__circles[index_circle].update(position, x_distance, y_distance, color)
+        self.__circles[index_circle].update(position)
         self.__region[index_circle].track(position)
         self.__ignore[index_circle] = 0
 
@@ -100,11 +97,11 @@ class Tracker:
         :param next_positions: New positions for each circle.
         """
         self.__mark_circles_invisible()
-        results = Matcher(self.__height, self.__width, self.__circles).match(next_positions, None)
+        results = Matcher(self.__height, self.__width, self.__circles).match(next_positions)
 
         for result in results:
             index_circle = result.index_circle
             if result.relible is True or self.__ignore[index_circle] > self.__ignore_threshold:
-                self.__update_state(index_circle, result.next_position, None)
+                self.__update_state(index_circle, result.next_position)
             else:
                 self.__ignore[index_circle] += 1
