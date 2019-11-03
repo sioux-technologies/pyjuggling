@@ -6,8 +6,10 @@ from juggling.configuration import Configuration
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--amount", required=True,
+    parser.add_argument("-a", "--amount", required=True, type=int,
                         help="Amount of juggling balls that should de detected, for example, 2.")
+    parser.add_argument("-s", "--simulate", required=False, action='store_true',
+                        help="Simulate circles.")
     parser.add_argument("-c", "--colors", required=False,
                         help="HSV Color ranges for detection, for example, in case of "
                              "orange balls \"[[(10, 100, 120), (25, 255, 255)]]\".")
@@ -18,6 +20,9 @@ def main():
     if amount_string is not None:
         amount = int(amount_string)
         Configuration().set_amount(amount)
+
+    simulation = arguments.get('simulate', False)
+    Configuration().set_simulation_state(simulation)
 
     ranges_string = arguments.get('colors', None)
     if ranges_string is not None:

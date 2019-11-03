@@ -7,7 +7,7 @@ class Circle:
     """
     Stores information that describes circle in 2-dimensional space.
     """
-    __trajectory_length = 12
+    __trajectory_length = 15
     __radius_values_length = 10
 
     def __init__(self, position, color):
@@ -54,6 +54,9 @@ class Circle:
     def get_y_telemetry(self):
         return self.__y_telemetry
 
+    def get_velocity(self):
+        return pow(pow(self.__x_telemetry.get_velocity(), 2.0) + pow(self.__y_telemetry.get_velocity(), 2.0), 0.5)
+
     def is_visible(self):
         """
         :return: True if a circle is visible (observable).
@@ -66,18 +69,20 @@ class Circle:
         """
         self.__visible = False
 
-    def update(self, position, x_ds, y_ds, color):
+    def update(self, position):
         """
         Updates circle in line with position on an image. When update method is called then circle visibility property
         becomes True.
 
         :param position: New circle's coordinates (x, y, radius).
-        :param x_ds: Distance changes on X-axis.
-        :param y_ds: Distance changes on Y-axis.
-        :param color: New color description.
         """
-        self.__position = position
-        self.__trajectory.append((position[0], position[1]))
+
+        x_position = int(position[0] * 0.8 + self.__x_telemetry.predict_position() * 0.2)
+        y_position = int(position[1] * 0.8 + self.__y_telemetry.predict_position() * 0.2)
+
+        self.__position = [x_position, y_position]
+
+        self.__trajectory.append((x_position, y_position))
         self.__radius_values.append(position[2])
 
         if len(self.__trajectory) > self.__trajectory_length:
@@ -87,7 +92,6 @@ class Circle:
             self.__radius_values.popleft()
 
         self.__radius = int(sum(self.__radius_values) / len(self.__radius_values))
-        self.__color = color
-        self.__x_telemetry.update(x_ds)
-        self.__y_telemetry.update(y_ds)
+        self.__x_telemetry.update(x_position)
+        self.__y_telemetry.update(y_position)
         self.__visible = True
