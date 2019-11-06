@@ -1,6 +1,7 @@
 import cv2
 import os
 
+from juggling.color_extractor import ColorExtractor
 from juggling.configuration import Configuration
 from juggling.circle_detector import ColorCircleDetector
 from juggling.movement_detector import MovementDetector
@@ -50,6 +51,26 @@ class Application(object):
             self.__simulator.step(frame)
         return frame
 
+    def __relax_color(self, ranges, s, v):
+        color_range_relaxed = []
+        for pair in ranges:
+            relaxed_pair = []
+            for color in pair:
+                relaxed = list(color)
+                relaxed[1] -= s
+                relaxed[2] -= v
+                relaxed_pair.append(tuple(relaxed))
+
+            color_range_relaxed.append(tuple(relaxed_pair))
+        return color_range_relaxed
+
+    def __filter_regions(self, image, rectangles, ranges):
+        filtered_regions = []
+        for rectangle in rectangles:
+            if ColorExtractor(image, rectangle).contains(ranges) is True:
+                filtered_regions.append(rectangle)
+        return filtered_regions
+
     def start(self):
         skip_counter = 0
 
@@ -65,7 +86,7 @@ class Application(object):
                 # maximum_amount = 100  # try to pay attention to data like in clustering.
                 maximum_amount = Configuration().get_amount()   # be direct
 
-            movement_frame, centers = self.__movement_detector.crop(frame)
+            movement_frame, rectangles = self.__movement_detector.crop(frame)
             positions = ColorCircleDetector(movement_frame, Configuration().get_color_ranges()).\
                 get(Configuration().get_amount(), maximum_amount)
 
@@ -79,19 +100,19 @@ class Application(object):
                 skip_counter = 0
             else:
                 if skip_counter < 10:
-                    self.__tracker.predict(centers)
+                    # ranges = self.__relax_color(Configuration().get_color_ranges(), 20, 5)
+                    # filtered_rectangles = self.__filter_regions(frame, rectangles, ranges)
+                    if len(rectangles) >= Configuration().get_amount():
+                        self.__tracker.predict(rectangles)
 
                 circles = self.__tracker.get_circles()
                 if (circles is not None) and (skip_counter < 20):
-                    # for circle in circles:
-                    #     pos = circle.get_position()
-                    #     cv2.circle(frame, (pos[0], pos[1]), circle.get_radius(), [255, 0, 0], 3)
                     Visualizer.visualize(frame, circles, self.__tracker, Style.Square)
 
                 skip_counter += 1
 
             cv2.imshow('Juggling', frame)
-            key_signal = cv2.waitKey(100)
+            key_signal = cv2.waitKey(1)
 
             if key_signal == Application._exit_key:  # Esc key to stop
                 break

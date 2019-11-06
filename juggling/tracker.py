@@ -55,13 +55,18 @@ class Tracker:
         """
         return self.__region[index].get_count()
 
-    def predict(self, centers):
+    def predict(self, rectangles):
         """
         Predict position of each circle and use it as a fact.
 
         """
-        if self.__circles is None or len(centers) == 0:
+        if self.__circles is None or len(rectangles) == 0:
             return
+
+        centers = []
+        for (x, y, w, h) in rectangles:
+            center = [int(x + w / 2), int(y + h / 2)]
+            centers.append(center)
 
         predicted_positions = []
         segment_assigned_map = [False] * len(centers)
