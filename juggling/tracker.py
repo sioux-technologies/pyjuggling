@@ -13,8 +13,7 @@ class Tracker:
     """
     Provides service to monitor circles: store them, match with changes and update circle states.
     """
-    __ignore_threshold = 1
-    __skip_threshold = 3
+    __ignore_threshold = 0
 
     def __init__(self, height, width):
         """
@@ -55,6 +54,23 @@ class Tracker:
         """
         return self.__region[index].get_count()
 
+    def predict(self):
+        """
+        Predict position of each circle and use it as a fact.
+
+        """
+        if self.__circles is None:
+            return
+
+        predicted_positions = []
+        for circle in self.__circles:
+            x = circle.get_x_telemetry().predict_position()
+            y = circle.get_y_telemetry().predict_position()
+            r = circle.get_radius()
+            predicted_positions.append([x, y, r])
+
+        self.update(predicted_positions)
+
     def update(self, next_positions):
         """
         Calculates changes, analyse reliability and update circle states if it required.
@@ -78,7 +94,6 @@ class Tracker:
         :param index_circle: Index that defines circle.
         :param position: New position and radius for specified circle.
         """
-        current_circle = self.__circles[index_circle]
 
         self.__circles[index_circle].update(position)
         self.__region[index_circle].track(position)

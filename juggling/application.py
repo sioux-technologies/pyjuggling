@@ -66,8 +66,11 @@ class Application(object):
                 Visualizer.visualize(frame, circles, self.__tracker, Style.Square)
                 skip_counter = 0
             else:
+                if skip_counter < 5:
+                    self.__tracker.predict()
+
                 circles = self.__tracker.get_circles()
-                if (circles is not None) and (skip_counter < 3):
+                if (circles is not None) and (skip_counter < 5):
                     Visualizer.visualize(frame, circles, self.__tracker, Style.Square)
 
                 skip_counter += 1

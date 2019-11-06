@@ -232,11 +232,12 @@ class ColorCircleDetector:
 
     def __smooth_image(self, image):
         kernel = numpy.ones((3, 3)).astype(numpy.uint8)
-        image = cv2.erode(self.__source_image, kernel)
+        image = cv2.erode(image, kernel)
         image = cv2.dilate(image, kernel)
         return image
 
     def __get_by_color_detection(self, amount, amount_maximum):
+        self.__source_image = self.__smooth_image(self.__source_image)
         image = cv2.blur(self.__source_image, (11, 11))
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 

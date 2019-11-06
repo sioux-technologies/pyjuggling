@@ -6,7 +6,7 @@ from juggling.singletone import Singleton
 class Configuration(metaclass=Singleton):
     def __init__(self):
         self.__amount = 1
-        self.__color_ranges = [[(0, 180, 100), (15, 255, 255)], [(165, 180, 100), (180, 255, 255)]]
+        self.__color_ranges = [[(0, 180, 100), (10, 255, 255)], [(170, 180, 100), (180, 255, 255)]]
         self.__simulate = False
         self.__file = None
 
