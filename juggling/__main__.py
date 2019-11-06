@@ -10,6 +10,10 @@ def main():
                         help="Amount of juggling balls that should de detected, for example, 2.")
     parser.add_argument("-s", "--simulate", required=False, action='store_true',
                         help="Simulate circles.")
+    parser.add_argument("-r", "--resolution", required=False, type=str, default="1280x720",
+                        help="Camera resolution (by default 1280x720).")
+    parser.add_argument("-p", "--play", required=False, type=str,
+                        help="Use video file instead of camera.")
     parser.add_argument("-c", "--colors", required=False,
                         help="HSV Color ranges for detection, for example, in case of "
                              "orange balls \"[[(10, 100, 120), (25, 255, 255)]]\".")
@@ -23,6 +27,12 @@ def main():
 
     simulation = arguments.get('simulate', False)
     Configuration().set_simulation_state(simulation)
+
+    play_file = arguments.get('play', None)
+    Configuration().set_play_file(play_file)
+
+    resolution = arguments.get('resolution')
+    Configuration().set_resolution(resolution)
 
     ranges_string = arguments.get('colors', None)
     if ranges_string is not None:

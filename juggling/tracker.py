@@ -3,6 +3,7 @@ Module provides service to monitor circles.
 """
 
 import logging
+import numpy
 
 from juggling.circle import Circle
 from juggling.matcher import Matcher
@@ -13,8 +14,7 @@ class Tracker:
     """
     Provides service to monitor circles: store them, match with changes and update circle states.
     """
-    __ignore_threshold = 1
-    __skip_threshold = 3
+    __ignore_threshold = 0
 
     def __init__(self, height, width):
         """
@@ -55,6 +55,40 @@ class Tracker:
         """
         return self.__region[index].get_count()
 
+    def predict(self, rectangles):
+        """
+        Predict position of each circle and use it as a fact.
+
+        """
+        if self.__circles is None or len(rectangles) == 0:
+            return
+
+        centers = []
+        for (x, y, w, h) in rectangles:
+            center = [int(x + w / 2), int(y + h / 2)]
+            centers.append(center)
+
+        predicted_positions = []
+        segment_assigned_map = [False] * len(centers)
+        centers = numpy.array(centers)
+        for circle in self.__circles:
+            x = circle.get_x_telemetry().predict_position()
+            y = circle.get_y_telemetry().predict_position()
+            r = circle.get_radius()
+            # predicted_positions.append([x, y, r])   # old way - just predict using telemetry
+
+            # new way - predict and find real object that is moved
+            point = numpy.array([x, y])
+            distances = numpy.sum((centers - point)**2, axis=1)
+            closest_indexes = distances.argsort()
+            for index in closest_indexes:
+                if segment_assigned_map[index] is False:
+                    segment_assigned_map[index] = True
+                    predicted_positions.append([centers[index][0], centers[index][1], r])
+                    break
+
+        self.update(predicted_positions)
+
     def update(self, next_positions):
         """
         Calculates changes, analyse reliability and update circle states if it required.
@@ -78,7 +112,6 @@ class Tracker:
         :param index_circle: Index that defines circle.
         :param position: New position and radius for specified circle.
         """
-        current_circle = self.__circles[index_circle]
 
         self.__circles[index_circle].update(position)
         self.__region[index_circle].track(position)

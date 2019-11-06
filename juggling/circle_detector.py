@@ -232,14 +232,13 @@ class ColorCircleDetector:
 
     def __smooth_image(self, image):
         kernel = numpy.ones((3, 3)).astype(numpy.uint8)
-        image = cv2.erode(self.__source_image, kernel)
+        image = cv2.erode(image, kernel)
         image = cv2.dilate(image, kernel)
         return image
 
     def __get_by_color_detection(self, amount, amount_maximum):
-        image = self.__smooth_image(self.__source_image)
-
-        image = cv2.medianBlur(image, 5)
+        self.__source_image = self.__smooth_image(self.__source_image)
+        image = cv2.blur(self.__source_image, (11, 11))
         image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         mask_color_hsv = cv2.inRange(image_hsv, self.__color_ranges[0][0], self.__color_ranges[0][1])
@@ -251,11 +250,12 @@ class ColorCircleDetector:
 
         circles = self.__build_circles_from_contour(mask_color_hsv, amount, amount_maximum)
 
-        # image_cropped = cv2.bitwise_and(image, image, mask=mask_color_hsv)
+        # image_cropped = cv2.bitwise_and(self.__source_image, self.__source_image, mask=mask_color_hsv)
         # if circles is not None:
         #     for circle in circles:
         #         cv2.circle(image_cropped, (circle[0], circle[1]), 10, [0, 255, 0], 3)
         # cv2.imshow("Cropped", image_cropped)
+        # cv2.imshow("Mask", mask_color_hsv)
 
         if (circles is not None) and ((len(circles) < amount) or (len(circles) > amount_maximum)):
             return None

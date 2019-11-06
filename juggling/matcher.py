@@ -82,18 +82,18 @@ class Matcher:
             if (index_pattern in assigned_patterns) or (index_circle in updated_circles):
                 continue
 
-            relible = True
+            reliable = True
             x_change = next_positions[index_pattern][0] - self.__circles[index_circle].get_position()[0]
             y_change = next_positions[index_pattern][1] - self.__circles[index_circle].get_position()[1]
             velocity = pow(pow(x_change, 2) + pow(y_change, 2), 0.5)
             if velocity > self.__circles[index_circle].get_velocity() * 2:
-                relible = False
+                reliable = False
 
             # make sure that it is possible in line telemetry
             assigned_patterns.add(index_pattern)
             updated_circles.add(index_circle)
 
-            result.append(MatchResult(index_circle, next_positions[index_pattern], distance, relible))
+            result.append(MatchResult(index_circle, next_positions[index_pattern], distance, reliable))
             if len(result) == len(self.__circles):
                 break
 

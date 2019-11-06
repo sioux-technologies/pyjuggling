@@ -7,7 +7,7 @@ class Circle:
     """
     Stores information that describes circle in 2-dimensional space.
     """
-    __trajectory_length = 15
+    __trajectory_length = 10
     __radius_values_length = 10
 
     def __init__(self, position, color):
