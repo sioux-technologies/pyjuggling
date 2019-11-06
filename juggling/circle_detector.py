@@ -250,12 +250,12 @@ class ColorCircleDetector:
 
         circles = self.__build_circles_from_contour(mask_color_hsv, amount, amount_maximum)
 
-        image_cropped = cv2.bitwise_and(self.__source_image, self.__source_image, mask=mask_color_hsv)
+        # image_cropped = cv2.bitwise_and(self.__source_image, self.__source_image, mask=mask_color_hsv)
         # if circles is not None:
         #     for circle in circles:
         #         cv2.circle(image_cropped, (circle[0], circle[1]), 10, [0, 255, 0], 3)
         # cv2.imshow("Cropped", image_cropped)
-        cv2.imshow("Mask", mask_color_hsv)
+        # cv2.imshow("Mask", mask_color_hsv)
 
         if (circles is not None) and ((len(circles) < amount) or (len(circles) > amount_maximum)):
             return None

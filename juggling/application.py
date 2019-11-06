@@ -3,6 +3,7 @@ import os
 
 from juggling.configuration import Configuration
 from juggling.circle_detector import ColorCircleDetector
+from juggling.movement_detector import MovementDetector
 from juggling.tracker import Tracker
 from juggling.visualizer import Visualizer, Style
 from juggling.simulator import Simulator
@@ -19,6 +20,12 @@ class Application(object):
                                      [0.0, 2.54, 5.0], 3)
 
         frame = self.__get_frame()
+        if frame is None:
+            print("No input video stream - nothing to process.")
+            exit(-1)
+
+        self.__movement_detector = MovementDetector()
+        self.__movement_detector.crop(frame)
 
         self.__tracker = Tracker(frame.shape[1], frame.shape[0])
 
@@ -55,28 +62,36 @@ class Application(object):
             if self.__tracker.get_circles() is None:
                 maximum_amount = Configuration().get_amount()
             else:
-                maximum_amount = Configuration().get_amount()
+                # maximum_amount = 100  # try to pay attention to data like in clustering.
+                maximum_amount = Configuration().get_amount()   # be direct
 
-            positions = ColorCircleDetector(frame, Configuration().get_color_ranges()).\
+            movement_frame, centers = self.__movement_detector.crop(frame)
+            positions = ColorCircleDetector(movement_frame, Configuration().get_color_ranges()).\
                 get(Configuration().get_amount(), maximum_amount)
 
             if positions is not None:
+                # for position in positions:
+                #    cv2.circle(frame, (position[0], position[1]), position[2], [0, 0, 255], 3)
+
                 self.__tracker.update(positions)
                 circles = self.__tracker.get_circles()
                 Visualizer.visualize(frame, circles, self.__tracker, Style.Square)
                 skip_counter = 0
             else:
-                if skip_counter < 5:
-                    self.__tracker.predict()
+                if skip_counter < 10:
+                    self.__tracker.predict(centers)
 
                 circles = self.__tracker.get_circles()
-                if (circles is not None) and (skip_counter < 5):
+                if (circles is not None) and (skip_counter < 20):
+                    # for circle in circles:
+                    #     pos = circle.get_position()
+                    #     cv2.circle(frame, (pos[0], pos[1]), circle.get_radius(), [255, 0, 0], 3)
                     Visualizer.visualize(frame, circles, self.__tracker, Style.Square)
 
                 skip_counter += 1
 
             cv2.imshow('Juggling', frame)
-            key_signal = cv2.waitKey(1)
+            key_signal = cv2.waitKey(100)
 
             if key_signal == Application._exit_key:  # Esc key to stop
                 break

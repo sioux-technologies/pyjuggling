@@ -3,6 +3,7 @@ Module provides service to monitor circles.
 """
 
 import logging
+import numpy
 
 from juggling.circle import Circle
 from juggling.matcher import Matcher
@@ -54,20 +55,32 @@ class Tracker:
         """
         return self.__region[index].get_count()
 
-    def predict(self):
+    def predict(self, centers):
         """
         Predict position of each circle and use it as a fact.
 
         """
-        if self.__circles is None:
+        if self.__circles is None or len(centers) == 0:
             return
 
         predicted_positions = []
+        segment_assigned_map = [False] * len(centers)
+        centers = numpy.array(centers)
         for circle in self.__circles:
             x = circle.get_x_telemetry().predict_position()
             y = circle.get_y_telemetry().predict_position()
             r = circle.get_radius()
-            predicted_positions.append([x, y, r])
+            # predicted_positions.append([x, y, r])   # old way - just predict using telemetry
+
+            # new way - predict and find real object that is moved
+            point = numpy.array([x, y])
+            distances = numpy.sum((centers - point)**2, axis=1)
+            closest_indexes = distances.argsort()
+            for index in closest_indexes:
+                if segment_assigned_map[index] is False:
+                    segment_assigned_map[index] = True
+                    predicted_positions.append([centers[index][0], centers[index][1], r])
+                    break
 
         self.update(predicted_positions)
 
