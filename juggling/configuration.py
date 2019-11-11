@@ -15,6 +15,7 @@ class Configuration(metaclass=Singleton):
         self.__play_file = None
         self.__output_file = None
         self.__delay = 1
+        self.__threshold_movement = 20
 
         self.__width = 1280
         self.__height = 720
@@ -54,6 +55,12 @@ class Configuration(metaclass=Singleton):
 
     def get_delay(self):
         return self.__delay
+
+    def set_threshold_movement(self, threshold):
+        self.__threshold_movement = threshold
+
+    def get_threshold_movement(self):
+        return self.__threshold_movement
 
     def set_resolution(self, resolution):
         pattern = re.compile("(\d+)x(\d+)")

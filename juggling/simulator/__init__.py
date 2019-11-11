@@ -19,8 +19,8 @@ class Simulator:
                 x = int(self.__trajectory[i][2] * math.sin(self.__radians[i])) + self.__trajectory[i][0]
                 y = int(self.__trajectory[i][2] * math.cos(self.__radians[i])) + self.__trajectory[i][1]
 
-                cv2.circle(frame, (x, y), self.__circles[i][2], (66, 66, 255), -1)
-                cv2.circle(frame, (x, y), self.__circles[i][2], (66, 66, 255), 4)
+                cv2.circle(frame, (x, y), self.__circles[i][2], (0, 0, 255), -1)
+                cv2.circle(frame, (x, y), self.__circles[i][2], (0, 0, 255), 4)
 
             self.__radians[i] -= 0.1
 

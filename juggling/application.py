@@ -19,7 +19,7 @@ class Application(object):
 
         self.__simulator = Simulator([[100, 100, 10], [100, 100, 10], [100, 100, 10]],
                                      [[250, 300, 120], [250, 250, 120], [300, 260, 140]],
-                                     [0.0, 2.54, 5.0], 3)
+                                     [0.0, 2.54, 5.0], 1)
 
         frame = self.__get_frame()
         if frame is None:
@@ -27,7 +27,7 @@ class Application(object):
             exit(-1)
 
         self.__movement_detector = MovementDetector()
-        self.__movement_detector.crop(frame)
+        self.__movement_detector.crop(frame, Configuration().get_threshold_movement())
 
         self.__tracker = Tracker(frame.shape[1], frame.shape[0])
 
@@ -102,7 +102,7 @@ class Application(object):
                 # maximum_amount = 100  # try to pay attention to data like in clustering.
                 maximum_amount = Configuration().get_amount()   # be direct
 
-            movement_frame, rectangles = self.__movement_detector.crop(frame)
+            movement_frame, rectangles = self.__movement_detector.crop(frame, Configuration().get_threshold_movement())
             positions = ColorCircleDetector(movement_frame, Configuration().get_color_ranges()).\
                 get(Configuration().get_amount(), maximum_amount)
 
