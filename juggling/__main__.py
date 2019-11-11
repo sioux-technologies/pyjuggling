@@ -14,6 +14,10 @@ def main():
                         help="Camera resolution (by default 1280x720).")
     parser.add_argument("-p", "--play", required=False, type=str,
                         help="Use video file instead of camera.")
+    parser.add_argument("-o", "--output", required=False, type=str, default=None,
+                        help="File name where output video stream is written (by default is not specified).")
+    parser.add_argument("-d", "--delay", required=False, type=int, default=1,
+                        help="Delay for camera between frames in case of camera or playing file (by default 1 ms).")
     parser.add_argument("-c", "--colors", required=False,
                         help="HSV Color ranges for detection, for example, in case of "
                              "orange balls \"[[(10, 100, 120), (25, 255, 255)]]\".")
@@ -31,8 +35,14 @@ def main():
     play_file = arguments.get('play', None)
     Configuration().set_play_file(play_file)
 
+    output_file = arguments.get('output', None)
+    Configuration().set_output_file(output_file)
+
     resolution = arguments.get('resolution')
     Configuration().set_resolution(resolution)
+
+    delay = arguments.get('delay')
+    Configuration().set_delay(delay)
 
     ranges_string = arguments.get('colors', None)
     if ranges_string is not None:

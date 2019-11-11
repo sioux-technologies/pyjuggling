@@ -12,7 +12,9 @@ class Configuration(metaclass=Singleton):
         # relax - [[(0, 170, 100), (10, 255, 255)], [(170, 170, 100), (180, 255, 255)]]
         self.__color_ranges = [[(0, 180, 105), (10, 255, 255)], [(170, 180, 105), (180, 255, 255)]]
         self.__simulate = False
-        self.__file = None
+        self.__play_file = None
+        self.__output_file = None
+        self.__delay = 1
 
         self.__width = 1280
         self.__height = 720
@@ -36,10 +38,22 @@ class Configuration(metaclass=Singleton):
         return self.__simulate
 
     def set_play_file(self, file):
-        self.__file = file
+        self.__play_file = file
 
     def get_play_file(self):
-        return self.__file
+        return self.__play_file
+
+    def set_output_file(self, file):
+        self.__output_file = file
+
+    def get_output_file(self):
+        return self.__output_file
+
+    def set_delay(self, delay):
+        self.__delay = delay
+
+    def get_delay(self):
+        return self.__delay
 
     def set_resolution(self, resolution):
         pattern = re.compile("(\d+)x(\d+)")
@@ -48,8 +62,8 @@ class Configuration(metaclass=Singleton):
             raise ValueError("Impossible to obtain camera resolution, resolution pattern is [width]x[height], "
                              "for example, 1280x720.")
         else:
-            self.__width = result.group(1)
-            self.__height = result.group(2)
+            self.__width = int(result.group(1))
+            self.__height = int(result.group(2))
 
     def get_resolution(self):
         return self.__width, self.__height

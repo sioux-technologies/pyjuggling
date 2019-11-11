@@ -15,6 +15,7 @@ class Application(object):
 
     def __init__(self):
         self.__video_stream = self.__create_video_stream()
+        self.__output_stream = self.__create_output_stream()
 
         self.__simulator = Simulator([[100, 100, 10], [100, 100, 10], [100, 100, 10]],
                                      [[250, 300, 120], [250, 250, 120], [300, 260, 140]],
@@ -29,6 +30,21 @@ class Application(object):
         self.__movement_detector.crop(frame)
 
         self.__tracker = Tracker(frame.shape[1], frame.shape[0])
+
+    def __del__(self):
+        self.__video_stream.release()
+        if self.__output_stream is not None:
+            self.__output_stream.release()
+
+        cv2.destroyAllWindows()
+
+    def __create_output_stream(self):
+        output_file = Configuration().get_output_file()
+        stream = None
+        if output_file is not None:
+            width, height = Configuration().get_resolution()
+            stream = cv2.VideoWriter(output_file, cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), 30, (width, height))
+        return stream
 
     def __create_video_stream(self):
         play_file = Configuration().get_play_file()
@@ -112,10 +128,9 @@ class Application(object):
                 skip_counter += 1
 
             cv2.imshow('Juggling', frame)
-            key_signal = cv2.waitKey(1)
+            if self.__output_stream is not None:
+                self.__output_stream.write(frame)
+            key_signal = cv2.waitKey(Configuration().get_delay())
 
             if key_signal == Application._exit_key:  # Esc key to stop
                 break
-
-        self.__video_stream.release()
-        cv2.destroyAllWindows()

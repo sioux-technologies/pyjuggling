@@ -39,12 +39,12 @@ class Visualizer:
 
         trajectory = circle.get_trajectory()
         for position in trajectory:
-            cv2.circle(frame, (position[0], position[1]), 5, color, -1)
+            cv2.circle(frame, (position[0], position[1]), 3, (0, 255, 0), -1)
 
         # prev_x, prev_y = None, None
         # for position in trajectory:
         #     if (prev_x is not None) or (prev_y is not None):
-        #         cv2.line(frame, (prev_x, prev_y), (position[0], position[1]), color, 1)
+        #         cv2.line(frame, (prev_x, prev_y), (position[0], position[1]), (0, 255, 0), 1)
         #
         #     cv2.circle(frame, (x, y), 5, (255, 0, 0), -1)
         #     prev_x, prev_y = position[0], position[1]
@@ -78,10 +78,16 @@ class Visualizer:
         if tracker is None:
             return
 
+        total_amount = 0
         for i in range(len(tracker)):
+            total_amount += tracker.get_complete_motions(i)
             info = "Laps for #%d: %d" % (i, tracker.get_complete_motions(i))
-            cv2.putText(frame, info, (0, (i + 1) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0),
+            cv2.putText(frame, info, (0, (i + 3) * 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0),
                         thickness=2, lineType=2)
+
+        info = "Total tossing amount: %d" % total_amount
+        cv2.putText(frame, info, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0),
+                    thickness=2, lineType=2)
 
     @staticmethod
     def show_pattern(frame, locations):
