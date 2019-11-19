@@ -29,7 +29,3 @@ class TestCircleDetector(unittest.TestCase):
 
     def test_photo_amount_3_white_background_1(self):
         self.template_amount("samples/circles_photo_amount_3_white_background_1.jpg", 3)
-
-    def test_photo_amount_3_white_background_2(self):
-        self.template_amount("samples/circles_photo_amount_3_white_background_2.jpg", 3)
-

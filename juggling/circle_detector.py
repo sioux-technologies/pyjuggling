@@ -170,7 +170,7 @@ class ColorCircleDetector:
         self.__source_image = image
         self.__color_ranges = color_ranges
 
-    def get(self, amount=1, amount_maximum=1):
+    def get(self, amount=1, amount_maximum=None):
         """
         Extracts specified amount of colored circles from the image.
 
@@ -178,6 +178,12 @@ class ColorCircleDetector:
         :param amount_maximum:
         :return: Extracted circles that have been found on the image, otherwise None.
         """
+        if amount_maximum is None:
+            amount_maximum = amount
+
+        if amount_maximum < amount:
+            raise ValueError("Maximum value '%d' should be less than minimum '%d'." % (amount_maximum, amount))
+
         return self.__get_by_color_detection(amount, amount_maximum)
 
     def __get_farthest_circles(self, circles, clusters):

@@ -14,9 +14,7 @@ class TestMatch(unittest.TestCase):
         result = sorted(result, key=lambda item: item.index_circle)
 
         self.assertEqual(result[0].next_position, next_positions[answers[0]])
-        self.assertEqual(result[0].next_color, None)
         self.assertEqual(result[1].next_position, next_positions[answers[1]])
-        self.assertEqual(result[1].next_color, None)
 
     def test_two_circles_01(self):
         circle1 = Circle([50, 50, 10], None)
