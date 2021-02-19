@@ -1,8 +1,7 @@
 Juggling balls vision counter
 -----------------------------
 
-Juggling balls vision counter is an application that detects juggling balls and tracks them to count how many times each
-juggling ball is tossed. The application is written using Python programming language.
+pyjuggling (juggling balls vision counter) is an application that detects juggling balls and tracks them to count how many times each juggling ball is tossed. The application is written using Python 3 programming language.
 
 The detection process consists following phases:
 1. Movement detection to consider only moving parts of each frame.
